@@ -52,12 +52,12 @@ func _calculate_density(_position: Vector2) -> float:
 	return density
 
 func _calculate_density_gradient(_position: Vector2) -> Vector2:
-	const delta = 1e-3
+	const delta = 1e-6
 	var origin = _calculate_density(_position)
-	var dx = _calculate_density(_position + Vector2.UP * delta) - origin
-	var dy = _calculate_density(_position + Vector2.RIGHT * delta) - origin
-	var dir = Vector2(dy, dx)
-	return dir / dir.length()
+	var dx = _calculate_density(_position + Vector2.RIGHT * delta) - origin
+	var dy = _calculate_density(_position + Vector2.UP * delta) - origin
+	var dir = Vector2(-dx, dy)
+	return Vector2.ZERO if dir == Vector2.ZERO else dir / dir.length()
 	
 func _convert_density_to_pressure(density: float) -> float:
 	return Global.gas_constant * (density - Global.rest_density)

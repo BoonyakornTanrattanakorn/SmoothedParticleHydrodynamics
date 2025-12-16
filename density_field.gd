@@ -1,7 +1,7 @@
 extends Node2D
 
-var arrow_length = 0.5
-var resolution = 2.0
+var arrow_length = 20.0 # pixel
+var resolution = 0.25
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -9,15 +9,21 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	for x in range(0, Global.box_dimension.x, resolution):
-		for y in range(0, Global.box_dimension.y, resolution):
-			pass
-			#_draw_density_gradient_line(Vector2(x, y))
 	queue_redraw()
 	
 func _draw() -> void:
-	draw_line(Vector2(0,0), Vector2(100, 100), Color.WHITE)
+	var x = 0
+	while x <= Global.box_dimension.x:
+		var y = 0
+		while y <= Global.box_dimension.y:
+			_draw_density_gradient_line(Vector2(x, y))	
+			y += resolution
+		x += resolution		
 
-	#
-#func _draw_density_gradient_line(_position: Vector2) -> void:
-	#var grad = _calculate_density_gradient(_position)
+func _draw_density_gradient_line(_position: Vector2) -> void:
+	var dir = Main._calculate_density_gradient(_position)
+	if dir == Vector2.ZERO: dir = Vector2.UP
+	var from = _position * Global._scale + Global._offset
+	var to = from + dir * arrow_length 
+	draw_line(from, to, Color.WHITE)
+	draw_circle(from, arrow_length*0.1, Color.WHITE)
