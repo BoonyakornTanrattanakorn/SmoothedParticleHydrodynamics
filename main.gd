@@ -3,7 +3,7 @@ extends Node2D
 var rng = RandomNumberGenerator.new()
 
 var particle_array : Array[Particle] = []
-var particle_num = 1
+var particle_num = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -20,9 +20,8 @@ func _add_particle(_position: Vector2) -> void:
 	add_child(p)
 
 func _input(event: InputEvent):
-	if event is InputEventMouseButton:
-		if event.button_index == MouseButton.MOUSE_BUTTON_LEFT and event.is_pressed():
-			_add_particle((event.position - Global._offset) / Global._scale)
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		_add_particle((event.position - Global._offset) / Global._scale)
 
 func _update_physics(delta: float) -> void:
 	# Calculate particles density
@@ -34,8 +33,9 @@ func _update_physics(delta: float) -> void:
 		particle_array[particle_index]._velocity += (pressure_force / particle_array[particle_index].density) * delta
 	# Calculate particle position
 	for particle_index in range(particle_array.size()):
-		#particle_array[particle_index]._velocity += Global.gravity * delta;
+		particle_array[particle_index]._velocity += Global.gravity * delta;
 		particle_array[particle_index]._position += particle_array[particle_index]._velocity * delta
+		particle_array[particle_index]._velocity *= Global.damp
 		particle_array[particle_index]._update_physics(delta)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -75,6 +75,7 @@ func _calculate_pressure_force(particle_index: int) -> Vector2:
 		var grad = SmoothingKernel.Wgrad(dst)
 		var shared_pressure = (self_pressure + other_pressure) / 2.0
 		var density = particle_array[idx].density
+		
 		pressure_force += -shared_pressure * dir * grad \
 		 * Global.particle_mass / density
 	return pressure_force
