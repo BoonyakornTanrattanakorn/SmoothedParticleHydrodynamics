@@ -43,14 +43,14 @@ func _update_color() -> void:
 func _bounding_box_collision() -> void:
 	if(_position.x > Global.box_dimension.x - Global.particle_radius):
 		_position.x = Global.box_dimension.x - Global.particle_radius;
-		_velocity.x *= -1;
+		_velocity.x = 0;
 	elif(_position.x < Global.particle_radius):
 		_position.x = Global.particle_radius;
-		_velocity.x *= -1;
+		_velocity.x = 0;
 	if(_position.y > Global.box_dimension.y - Global.particle_radius):
 		_position.y = Global.box_dimension.y - Global.particle_radius;
-		_velocity.y *= -1;
+		_velocity.y = 0;
 	elif(_position.y < Global.particle_radius):
 		_position.y = Global.particle_radius;
-		_velocity.y *= -1;
+		_velocity.y = 0;
 		

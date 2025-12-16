@@ -1,14 +1,14 @@
 extends Node2D
 
 var gravity = Vector2(0, 9.80655)
-var box_dimension = Vector2(20, 20)
-var particle_radius : float = 1.0
+var box_dimension = Vector2(10, 10)
+var particle_radius : float = 0.1
 var particle_color = Color(0.0, 0.0, 1.0, 1.0)
 var gas_constant : float = 10.0
 var rest_density : float = 1000.0
 
-var smoothing_length : float = 5.0
-var particle_mass : float = 1000.0 * 0.125 * smoothing_length ** 3
+var smoothing_length : float = 2 * particle_radius
+var particle_mass : float = 1000.0 * 0.25 * smoothing_length ** 2
 
 var min_density : float = INF
 var max_density : float = -INF
