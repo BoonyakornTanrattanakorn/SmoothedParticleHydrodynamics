@@ -1,7 +1,7 @@
 extends Node2D
 
 var gravity = Vector2(0, 9.81)
-var box_dimension = Vector2(5, 5)
+var box_dimension = Vector2(1, 10)
 var particle_radius : float = 0.1
 var particle_color = Color(0.0, 0.0, 1.0, 1.0)
 var gas_constant : float = 10.0
