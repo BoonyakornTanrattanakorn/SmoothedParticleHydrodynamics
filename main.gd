@@ -8,8 +8,6 @@ var initial_particle_num = 0
 
 var particle_num = 0
 
-
-
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	for i in range(initial_particle_num):
@@ -44,14 +42,20 @@ func _update_physics(delta: float) -> void:
 	else:
 		push_error("Particles is null!")
 
-func _update_labels(delta: float) -> void:
-	$InfoLabel.text = "Particles: " + str(particle_num) + "\n" + \
-					  "Frame Time (ms): " + str(int(1000*delta)) + " ms\n"
+func _update_labels(physics_time: float) -> void:
+	if $InfoLabel != null:
+		$InfoLabel.text = "Particles: " + str(particle_num) + "\n" + \
+						  "Physics Time: " + str(int(physics_time)) + " ms\n"
+	else:
+		push_error("InfoLabel is null!")
+					
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	var start_time = Time.get_ticks_msec()
 	var t = min(delta, Global.time_step)
 	_update_physics(t)
-	_update_labels(delta)
+	var end_time = Time.get_ticks_msec()
+	_update_labels(end_time-start_time)
 
 func _calculate_density_gradient(_position: Vector2) -> Vector2:
 	const delta = 1e-6
@@ -84,15 +88,15 @@ func _calculate_pressure_force(particle_index: int, particle_density_array: Pack
 
 func _bounding_box_collision() -> void:
 	for idx in range(particle_num):
-		if(particle_position_array[idx].x > Global.box_dimension.x - Global.particle_radius):
+		if (particle_position_array[idx].x > Global.box_dimension.x - Global.particle_radius):
 			particle_position_array[idx].x = Global.box_dimension.x - Global.particle_radius;
 			particle_velocity_array[idx].x *= -Global.damp;
-		elif(particle_position_array[idx].x < Global.particle_radius):
+		elif (particle_position_array[idx].x < Global.particle_radius):
 			particle_position_array[idx].x = Global.particle_radius;
 			particle_velocity_array[idx].x *= -Global.damp;
-		if(particle_position_array[idx].y > Global.box_dimension.y - Global.particle_radius):
+		if (particle_position_array[idx].y > Global.box_dimension.y - Global.particle_radius):
 			particle_position_array[idx].y = Global.box_dimension.y - Global.particle_radius;
 			particle_velocity_array[idx].y *= -Global.damp;
-		elif(particle_position_array[idx].y < Global.particle_radius):
+		elif (particle_position_array[idx].y < Global.particle_radius):
 			particle_position_array[idx].y = Global.particle_radius;
 			particle_velocity_array[idx].y *= -Global.damp;

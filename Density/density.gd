@@ -2,7 +2,7 @@ extends Node
 class_name Density
 
 static var rd := RenderingServer.create_local_rendering_device()
-static var density_compute_shader_file := load("res://density_compute_shader.glsl")
+static var density_compute_shader_file := load("res://Density/density_compute_shader.glsl")
 static var density_compute_shader_spirv: RDShaderSPIRV = density_compute_shader_file.get_spirv()
 static var density_compute_shader := rd.shader_create_from_spirv(density_compute_shader_spirv)
 static var density_compute_pipeline := rd.compute_pipeline_create(density_compute_shader)
