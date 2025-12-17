@@ -15,7 +15,7 @@ static func _convert_density_to_pressure(density: float) -> float:
 static func _calculate_array(particle_position_array: PackedVector2Array,
 							particle_density_array: PackedFloat32Array) -> PackedVector2Array:
 	var pressure_force: PackedVector2Array
-	if Global.use_gpu && false:
+	if Global.use_gpu:
 		pressure_force = _calculate_gpu(particle_position_array, particle_density_array)
 	else:
 		pressure_force = _calculate_cpu(particle_position_array, particle_density_array)
@@ -42,62 +42,72 @@ static func _calculate_cpu(particle_position_array: PackedVector2Array,
 			 * Global.particle_mass / density
 	return pressure_force
 
+# TODO: I think it's possible to do this in the same compute shader as density
 static func _calculate_gpu(particle_position_array: PackedVector2Array,
 						particle_density_array: PackedFloat32Array) -> PackedVector2Array:
-	return PackedVector2Array()
-	#if particle_position_array.size() == 0 or particle_position_array == null or \
-		#particle_density_array.size() == 0 or particle_density_array == null: 
-		#return PackedVector2Array()
-	#
-	## Position buffer (binding = 0)
-	#var position_bytes := particle_position_array.to_byte_array()
-	#var position_buffer := rd.storage_buffer_create(position_bytes.size(), position_bytes)
-#
-	#var position_uniform := RDUniform.new()
-	#position_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	#position_uniform.binding = 0
-	#position_uniform.add_id(position_buffer)
-#
-	## Density buffer (binding = 1)
-	#var density_input := PackedFloat32Array()
-	#density_input.resize(particle_position_array.size())
-	#var density_bytes := density_input.to_byte_array()
-	#var density_buffer := rd.storage_buffer_create(density_bytes.size(), density_bytes)
-#
-	#var density_uniform := RDUniform.new()
-	#density_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	#density_uniform.binding = 1
-	#density_uniform.add_id(density_buffer)
-#
-	## Param buffer (binding = 2)
-	#var param := PackedFloat32Array([Global.particle_mass, particle_position_array.size(), Global.smoothing_length])
-	#var param_bytes := param.to_byte_array()
-	#var param_buffer := rd.storage_buffer_create(param_bytes.size(), param_bytes)
-#
-	#var param_uniform := RDUniform.new()
-	#param_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	#param_uniform.binding = 2
-	#param_uniform.add_id(param_buffer)
-#
-	## uniform set for set = 0
-	#var uniform_set := rd.uniform_set_create(
-		#[position_uniform, density_uniform, param_uniform],
-		#density_compute_shader,
-		#0
-	#)
-#
-	## dispatch compute shader
-	#var compute_list := rd.compute_list_begin()
-	#rd.compute_list_bind_compute_pipeline(compute_list, density_compute_pipeline)
-	#rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
-	#rd.compute_list_dispatch(compute_list, particle_position_array.size(), 1, 1)
-	#rd.compute_list_end()
-#
-	#rd.submit()
-	## we can actually do other CPU tasks here while GPU is working
-	#rd.sync()
-#
-	## read back density buffer
-	#var density_output_bytes := rd.buffer_get_data(density_buffer)
-	#var density_output := density_output_bytes.to_float32_array()
-	#return density_output
+	if particle_position_array.size() == 0 or particle_position_array == null or \
+		particle_density_array.size() == 0 or particle_density_array == null:
+		return PackedVector2Array()
+	
+	# Position buffer (binding = 0)
+	var position_bytes := particle_position_array.to_byte_array()
+	var position_buffer := rd.storage_buffer_create(position_bytes.size(), position_bytes)
+
+	var position_uniform := RDUniform.new()
+	position_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	position_uniform.binding = 0
+	position_uniform.add_id(position_buffer)
+
+	# Density buffer (binding = 1)
+	var density_bytes := particle_density_array.to_byte_array()
+	var density_buffer := rd.storage_buffer_create(density_bytes.size(), density_bytes)
+
+	var density_uniform := RDUniform.new()
+	density_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	density_uniform.binding = 1
+	density_uniform.add_id(density_buffer)
+	
+	# Pressure force buffer (binding = 2)
+	var pressure_force_input := PackedVector2Array()
+	pressure_force_input.resize(particle_position_array.size())
+	var pressure_force_bytes := pressure_force_input.to_byte_array()
+	var pressure_force_buffer := rd.storage_buffer_create(pressure_force_bytes.size(), pressure_force_bytes)
+
+	var pressure_force_uniform := RDUniform.new()
+	pressure_force_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	pressure_force_uniform.binding = 2
+	pressure_force_uniform.add_id(pressure_force_buffer)
+
+	# Param buffer (binding = 3)
+	var param := PackedFloat32Array([Global.particle_mass, particle_position_array.size(), \
+	Global.smoothing_length, Global.gas_constant, Global.rest_density])
+	var param_bytes := param.to_byte_array()
+	var param_buffer := rd.storage_buffer_create(param_bytes.size(), param_bytes)
+
+	var param_uniform := RDUniform.new()
+	param_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	param_uniform.binding = 3
+	param_uniform.add_id(param_buffer)
+
+	# uniform set for set = 0
+	var uniform_set := rd.uniform_set_create(
+		[position_uniform, density_uniform, pressure_force_uniform, param_uniform],
+		pressure_force_compute_shader,
+		0
+	)
+
+	# dispatch compute shader
+	var compute_list := rd.compute_list_begin()
+	rd.compute_list_bind_compute_pipeline(compute_list, pressure_force_compute_pipeline)
+	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
+	rd.compute_list_dispatch(compute_list, particle_position_array.size(), 1, 1)
+	rd.compute_list_end()
+
+	rd.submit()
+	# we can actually do other CPU tasks here while GPU is working
+	rd.sync ()
+
+	# read back pressure force buffer
+	var pressure_force_output_bytes := rd.buffer_get_data(pressure_force_buffer)
+	var pressure_force_output := pressure_force_output_bytes.to_vector2_array()
+	return pressure_force_output

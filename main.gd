@@ -4,7 +4,7 @@ var rng = RandomNumberGenerator.new()
 
 var particle_position_array: PackedVector2Array = []
 var particle_velocity_array: PackedVector2Array = []
-var initial_particle_num = 0
+var initial_particle_num = 10
 
 var particle_num = 0
 
