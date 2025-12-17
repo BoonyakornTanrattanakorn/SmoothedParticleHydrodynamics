@@ -20,9 +20,6 @@ static func _calculate_from_position_array(particle_position_array: PackedVector
 		density = _calculate_gpu(particle_position_array)
 	else:
 		density = _calculate_cpu(particle_position_array)
-	for d in density:
-		Global.min_density = min(Global.min_density, d)
-		Global.max_density = max(Global.max_density, d)
 	return density
 
 static func _calculate_cpu(particle_position_array: PackedVector2Array) -> PackedFloat32Array:
@@ -34,6 +31,9 @@ static func _calculate_cpu(particle_position_array: PackedVector2Array) -> Packe
 
 	
 static func _calculate_gpu(particle_position_array: PackedVector2Array) -> PackedFloat32Array:
+	if particle_position_array.size() == 0 or particle_position_array == null: 
+		return PackedFloat32Array()
+	
 	# Position buffer (binding = 0)
 	var position_bytes := particle_position_array.to_byte_array()
 	var position_buffer := rd.storage_buffer_create(position_bytes.size(), position_bytes)

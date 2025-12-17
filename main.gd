@@ -24,6 +24,7 @@ func _input(event: InputEvent):
 		_add_particle((event.position - Global._offset) / Global._scale)
 
 func _update_physics(delta: float) -> void:
+	if particle_num == 0: return
 	# Calculate particles density
 	var particle_density_array := Density._calculate_from_position_array(particle_position_array)
 	# Calculate pressure force

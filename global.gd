@@ -12,9 +12,6 @@ var particle_mass : float = 1.0
 var damp: float = 0.99
 var time_step := 0.01 # delta will not be bigger than this
 
-var min_density : float = INF
-var max_density : float = -INF
-
 var _scale;
 var _offset: Vector2;
 

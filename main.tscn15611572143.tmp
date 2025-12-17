@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://bun8qc0hbhmwp"]
+
+[ext_resource type="Script" uid="uid://b43j177cwb3bc" path="res://main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://biu7k7fqr8fun" path="res://density_field.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://bj4uf7ya3a1tb" path="res://particle.gd" id="2_h2yge"]
+
+[node name="MainScene" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="DensityGradientField" type="Node2D" parent="."]
+visible = false
+script = ExtResource("2_0xm2m")
+
+[node name="Particles" type="Node2D" parent="."]
+script = ExtResource("2_h2yge")
