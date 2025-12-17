@@ -43,6 +43,7 @@ static func _calculate_cpu(particle_position_array: PackedVector2Array,
 	return pressure_force
 
 # TODO: I think it's possible to do this in the same compute shader as density
+# TODO: fix memory leak free_rid
 static func _calculate_gpu(particle_position_array: PackedVector2Array,
 						particle_density_array: PackedFloat32Array) -> PackedVector2Array:
 	if particle_position_array.size() == 0 or particle_position_array == null or \

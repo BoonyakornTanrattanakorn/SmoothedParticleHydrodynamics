@@ -1,7 +1,7 @@
 extends Node2D
 
 var gravity = Vector2(0, 9.81)
-var box_dimension = Vector2(10, 10)
+var box_dimension = Vector2(20, 20)
 var particle_radius : float = 0.1
 var particle_color = Color(0.0, 0.0, 1.0, 1.0)
 var gas_constant : float = 10.0
@@ -12,7 +12,7 @@ var particle_mass : float = 1.0
 var damp: float = 0.99
 var time_step := 0.01 # delta will not be bigger than this
 
-var _scale;
+var _scale: float;
 var _offset: Vector2;
 
 var use_gpu = true
