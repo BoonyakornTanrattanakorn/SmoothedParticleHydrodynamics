@@ -31,20 +31,23 @@ float pow(float base, int exp){
 }
 
 #define PI 3.14159265359
-const float alpha = 15 / (7*PI*param.smoothing_length*param.smoothing_length); // kernel normalization factor for 2d
 
 // smoothing kernel
-float W(float r):
-	var q = r / param.smoothing_length
-	if q >= 2:
-		return 0
-	else:
+float W(float r, float h){
+    float alpha = 3.0 / (2.0 * PI * pow(h, 2));
+	float q = r / h;
+	if (q >= 2){
+		return 0.0;
+	} else {
 		return alpha * ((1.0/6.0) * pow((2.0-q), 3));
-		
+    }
+}
+
 // The code we want to execute in each invocation
 void main() {
     int particle_index = int(gl_GlobalInvocationID.x);
-    for(int idx = 0; idx < param.particle_num; ++idx){
-        float dst = 
+    for(int idx = 0; idx < int(param.particle_num); ++idx){
+        float dst = length(position.position[particle_index] - position.position[idx]);
+        density.density[particle_index] += param.mass * W(dst, param.smoothing_length);
     }
 }

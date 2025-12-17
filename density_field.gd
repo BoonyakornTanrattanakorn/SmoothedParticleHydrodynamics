@@ -21,9 +21,10 @@ func _draw() -> void:
 		x += resolution		
 
 func _draw_density_gradient_line(_position: Vector2) -> void:
-	var dir = Main._calculate_density_gradient(_position)
-	if dir == Vector2.ZERO: dir = Vector2.UP
-	var from = _position * Global._scale + Global._offset
-	var to = from + dir * arrow_length 
-	draw_line(from, to, Color.WHITE)
-	draw_circle(from, arrow_length*0.1, Color.WHITE)
+	pass
+	#var dir = Main._calculate_density_gradient(_position)
+	#if dir == Vector2.ZERO: dir = Vector2.UP
+	#var from = _position * Global._scale + Global._offset
+	#var to = from + dir * arrow_length 
+	#draw_line(from, to, Color.WHITE)
+	#draw_circle(from, arrow_length*0.1, Color.WHITE)
