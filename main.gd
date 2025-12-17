@@ -28,9 +28,9 @@ func _update_physics(delta: float) -> void:
 	# Calculate particles density
 	var particle_density_array := Density._calculate_from_position_array(particle_position_array)
 	# Calculate pressure force
-	for particle_index in range(particle_num):
-		var pressure_force = _calculate_pressure_force(particle_index, particle_density_array)
-		particle_velocity_array[particle_index] += (pressure_force / particle_density_array[particle_index]) * delta
+	var pressure_force_array = PressureForce._calculate_array(particle_position_array, particle_density_array)
+	for p_i in range(pressure_force_array.size()):
+		particle_velocity_array[p_i] += (pressure_force_array[p_i] / particle_density_array[p_i]) * delta
 	# Calculate particle position
 	for particle_index in range(particle_num):
 		particle_velocity_array[particle_index] += Global.gravity * delta;
@@ -64,27 +64,6 @@ func _calculate_density_gradient(_position: Vector2) -> Vector2:
 	var dy = Density._at_position(_position + Vector2.UP * delta, particle_position_array) - origin
 	var dir = Vector2(-dx, dy)
 	return Vector2.ZERO if dir == Vector2.ZERO else dir / dir.length()
-	
-func _convert_density_to_pressure(density: float) -> float:
-	return Global.gas_constant * (density - Global.rest_density)
-
-func _calculate_pressure_force(particle_index: int, particle_density_array: PackedFloat32Array) -> Vector2:
-	var pressure_force = Vector2.ZERO
-	var self_pressure = _convert_density_to_pressure(particle_density_array[particle_index])
-	for idx in range(particle_num):
-		if idx == particle_index: continue
-		var dst = (particle_position_array[idx] - particle_position_array[particle_index]).length()
-		var other_pressure = _convert_density_to_pressure(particle_density_array[idx])
-		
-		var dir = Vector2(rng.randf(), rng.randf()) if dst == 0 \
-		else (particle_position_array[idx] - particle_position_array[particle_index]) / dst
-		var grad = SmoothingKernel.Wgrad(dst)
-		var shared_pressure = (self_pressure + other_pressure) / 2.0
-		var density = particle_density_array[idx]
-		
-		pressure_force += -shared_pressure * dir * grad \
-		 * Global.particle_mass / density
-	return pressure_force
 
 func _bounding_box_collision() -> void:
 	for idx in range(particle_num):
