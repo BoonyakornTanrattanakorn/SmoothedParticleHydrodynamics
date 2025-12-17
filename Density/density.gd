@@ -1,28 +1,34 @@
 extends Node
 class_name Density
 
-static var rd := RenderingServer.create_local_rendering_device()
-static var density_compute_shader_file := load("res://Density/density_compute_shader.glsl")
-static var density_compute_shader_spirv: RDShaderSPIRV = density_compute_shader_file.get_spirv()
-static var density_compute_shader := rd.shader_create_from_spirv(density_compute_shader_spirv)
-static var density_compute_pipeline := rd.compute_pipeline_create(density_compute_shader)
+var settings: Settings
+var smoothing_kernel: SmoothingKernel
+var rd := RenderingServer.create_local_rendering_device()
+var density_compute_shader_file := load("res://Density/density_compute_shader.glsl")
+var density_compute_shader_spirv: RDShaderSPIRV = density_compute_shader_file.get_spirv()
+var density_compute_shader := rd.shader_create_from_spirv(density_compute_shader_spirv)
+var density_compute_pipeline := rd.compute_pipeline_create(density_compute_shader)
 
-static func _at_position(particle_position: Vector2, particle_position_array: PackedVector2Array) -> float:
+func _ready() -> void:
+	settings = get_parent().get_node("Settings")
+	smoothing_kernel = get_parent().get_node("SmoothingKernel")
+
+func _at_position(particle_position: Vector2, particle_position_array: PackedVector2Array) -> float:
 	var density = 0
 	for p_j in range(particle_position_array.size()):
 		var dst = (particle_position_array[p_j] - particle_position).length()
-		density += Global.particle_mass * SmoothingKernel.W(dst)
+		density += settings.particle_mass * smoothing_kernel.W(dst)
 	return density
 
-static func _calculate_from_position_array(particle_position_array: PackedVector2Array) -> PackedFloat32Array:
+func _calculate_from_position_array(particle_position_array: PackedVector2Array) -> PackedFloat32Array:
 	var density: PackedFloat32Array
-	if Global.use_gpu:
+	if settings.use_gpu:
 		density = _calculate_gpu(particle_position_array)
 	else:
 		density = _calculate_cpu(particle_position_array)
 	return density
 
-static func _calculate_cpu(particle_position_array: PackedVector2Array) -> PackedFloat32Array:
+func _calculate_cpu(particle_position_array: PackedVector2Array) -> PackedFloat32Array:
 	var density := PackedFloat32Array()
 	density.resize(particle_position_array.size())
 	for p_i in range(density.size()):
@@ -30,8 +36,8 @@ static func _calculate_cpu(particle_position_array: PackedVector2Array) -> Packe
 	return density
 
 	
-static func _calculate_gpu(particle_position_array: PackedVector2Array) -> PackedFloat32Array:
-	if particle_position_array.size() == 0 or particle_position_array == null: 
+func _calculate_gpu(particle_position_array: PackedVector2Array) -> PackedFloat32Array:
+	if particle_position_array.size() == 0 or particle_position_array == null:
 		return PackedFloat32Array()
 	
 	# Position buffer (binding = 0)
@@ -55,7 +61,7 @@ static func _calculate_gpu(particle_position_array: PackedVector2Array) -> Packe
 	density_uniform.add_id(density_buffer)
 
 	# Param buffer (binding = 2)
-	var param := PackedFloat32Array([Global.particle_mass, particle_position_array.size(), Global.smoothing_length])
+	var param := PackedFloat32Array([settings.particle_mass, particle_position_array.size(), settings.smoothing_length])
 	var param_bytes := param.to_byte_array()
 	var param_buffer := rd.storage_buffer_create(param_bytes.size(), param_bytes)
 
@@ -80,7 +86,7 @@ static func _calculate_gpu(particle_position_array: PackedVector2Array) -> Packe
 
 	rd.submit()
 	# we can actually do other CPU tasks here while GPU is working
-	rd.sync()
+	rd.sync ()
 
 	# read back density buffer
 	var density_output_bytes := rd.buffer_get_data(density_buffer)

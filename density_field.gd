@@ -1,11 +1,12 @@
 extends Node2D
 
+var settings: Settings
 var arrow_length = 20.0 # pixel
 var resolution = 0.25
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass
+	settings = get_parent().get_node("Settings")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -13,12 +14,12 @@ func _process(delta: float) -> void:
 	
 func _draw() -> void:
 	var x = 0
-	while x <= Global.box_dimension.x:
+	while x <= settings.box_dimension.x:
 		var y = 0
-		while y <= Global.box_dimension.y:
-			_draw_density_gradient_line(Vector2(x, y))	
+		while y <= settings.box_dimension.y:
+			_draw_density_gradient_line(Vector2(x, y))
 			y += resolution
-		x += resolution		
+		x += resolution
 
 func _draw_density_gradient_line(_position: Vector2) -> void:
 	pass

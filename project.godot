@@ -13,7 +13,3 @@ config_version=5
 config/name="SPH"
 run/main_scene="uid://bun8qc0hbhmwp"
 config/features=PackedStringArray("4.5", "Forward Plus")
-
-[autoload]
-
-Global="*res://global.gd"

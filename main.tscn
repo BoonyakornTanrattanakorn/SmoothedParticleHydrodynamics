@@ -1,11 +1,21 @@
-[gd_scene load_steps=4 format=3 uid="uid://bun8qc0hbhmwp"]
+[gd_scene load_steps=8 format=3 uid="uid://bun8qc0hbhmwp"]
 
 [ext_resource type="Script" uid="uid://b43j177cwb3bc" path="res://main.gd" id="1_main"]
 [ext_resource type="Script" uid="uid://biu7k7fqr8fun" path="res://density_field.gd" id="2_0xm2m"]
 [ext_resource type="Script" uid="uid://bj4uf7ya3a1tb" path="res://particle.gd" id="2_h2yge"]
+[ext_resource type="Script" uid="uid://dik05lqosw8i7" path="res://Density/density.gd" id="4_1bvp3"]
+[ext_resource type="Script" uid="uid://ck65pmo6g3srv" path="res://settings.gd" id="5_lquwl"]
+[ext_resource type="Script" uid="uid://ckgg7gpaysrvn" path="res://PressureForce/pressureForce.gd" id="6_7mycd"]
+[ext_resource type="Script" uid="uid://bwrubjl4sn6cu" path="res://smoothing_kernel_function.gd" id="7_272bh"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
+
+[node name="Settings" type="Node2D" parent="."]
+script = ExtResource("5_lquwl")
+gas_constant = 1000.0
+damp = 0.99
+metadata/_custom_type_script = "uid://ck65pmo6g3srv"
 
 [node name="DensityGradientField" type="Node2D" parent="."]
 visible = false
@@ -18,3 +28,15 @@ script = ExtResource("2_h2yge")
 offset_right = 132.0
 offset_bottom = 46.0
 text = "Particle: "
+
+[node name="Density" type="Node" parent="."]
+script = ExtResource("4_1bvp3")
+metadata/_custom_type_script = "uid://dik05lqosw8i7"
+
+[node name="PressureForce" type="Node" parent="."]
+script = ExtResource("6_7mycd")
+metadata/_custom_type_script = "uid://ckgg7gpaysrvn"
+
+[node name="SmoothingKernel" type="Node" parent="."]
+script = ExtResource("7_272bh")
+metadata/_custom_type_script = "uid://bwrubjl4sn6cu"

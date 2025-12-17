@@ -1,27 +1,33 @@
 extends Node
 class_name PressureForce
 
-static var rng = RandomNumberGenerator.new()
+var settings: Settings
+var smoothing_kernel: SmoothingKernel
+var rng = RandomNumberGenerator.new()
 
-static var rd := RenderingServer.create_local_rendering_device()
-static var pressure_force_compute_shader_file := load("res://PressureForce/pressure_force_compute_shader.glsl")
-static var pressure_force_compute_shader_spirv: RDShaderSPIRV = pressure_force_compute_shader_file.get_spirv()
-static var pressure_force_compute_shader := rd.shader_create_from_spirv(pressure_force_compute_shader_spirv)
-static var pressure_force_compute_pipeline := rd.compute_pipeline_create(pressure_force_compute_shader)
+var rd := RenderingServer.create_local_rendering_device()
+var pressure_force_compute_shader_file := load("res://PressureForce/pressure_force_compute_shader.glsl")
+var pressure_force_compute_shader_spirv: RDShaderSPIRV = pressure_force_compute_shader_file.get_spirv()
+var pressure_force_compute_shader := rd.shader_create_from_spirv(pressure_force_compute_shader_spirv)
+var pressure_force_compute_pipeline := rd.compute_pipeline_create(pressure_force_compute_shader)
 
-static func _convert_density_to_pressure(density: float) -> float:
-	return Global.gas_constant * (density - Global.rest_density)
+func _ready() -> void:
+	settings = get_parent().get_node("Settings")
+	smoothing_kernel = get_parent().get_node("SmoothingKernel")
+
+func _convert_density_to_pressure(density: float) -> float:
+	return settings.gas_constant * (density - settings.rest_density)
 	
-static func _calculate_array(particle_position_array: PackedVector2Array,
+func _calculate_array(particle_position_array: PackedVector2Array,
 							particle_density_array: PackedFloat32Array) -> PackedVector2Array:
 	var pressure_force: PackedVector2Array
-	if Global.use_gpu:
+	if settings.use_gpu:
 		pressure_force = _calculate_gpu(particle_position_array, particle_density_array)
 	else:
 		pressure_force = _calculate_cpu(particle_position_array, particle_density_array)
 	return pressure_force
 
-static func _calculate_cpu(particle_position_array: PackedVector2Array,
+func _calculate_cpu(particle_position_array: PackedVector2Array,
 						particle_density_array: PackedFloat32Array) -> PackedVector2Array:
 	var pressure_force = PackedVector2Array()
 	pressure_force.resize(particle_position_array.size())
@@ -34,17 +40,17 @@ static func _calculate_cpu(particle_position_array: PackedVector2Array,
 			
 			var dir = Vector2(rng.randf(), rng.randf()) if dst == 0 \
 			else (particle_position_array[p_j] - particle_position_array[p_i]) / dst
-			var grad = SmoothingKernel.Wgrad(dst)
+			var grad = smoothing_kernel.Wgrad(dst)
 			var shared_pressure = (self_pressure + other_pressure) / 2.0
 			var density = particle_density_array[p_j]
 			
 			pressure_force[p_i] += -shared_pressure * dir * grad \
-			 * Global.particle_mass / density
+			 * settings.particle_mass / density
 	return pressure_force
 
 # TODO: I think it's possible to do this in the same compute shader as density
 # TODO: fix memory leak free_rid
-static func _calculate_gpu(particle_position_array: PackedVector2Array,
+func _calculate_gpu(particle_position_array: PackedVector2Array,
 						particle_density_array: PackedFloat32Array) -> PackedVector2Array:
 	if particle_position_array.size() == 0 or particle_position_array == null or \
 		particle_density_array.size() == 0 or particle_density_array == null:
@@ -80,8 +86,8 @@ static func _calculate_gpu(particle_position_array: PackedVector2Array,
 	pressure_force_uniform.add_id(pressure_force_buffer)
 
 	# Param buffer (binding = 3)
-	var param := PackedFloat32Array([Global.particle_mass, particle_position_array.size(), \
-	Global.smoothing_length, Global.gas_constant, Global.rest_density])
+	var param := PackedFloat32Array([settings.particle_mass, particle_position_array.size(), \
+	settings.smoothing_length, settings.gas_constant, settings.rest_density])
 	var param_bytes := param.to_byte_array()
 	var param_buffer := rd.storage_buffer_create(param_bytes.size(), param_bytes)
 
@@ -106,7 +112,7 @@ static func _calculate_gpu(particle_position_array: PackedVector2Array,
 
 	rd.submit()
 	# we can actually do other CPU tasks here while GPU is working
-	rd.sync ()
+	rd.sync()
 
 	# read back pressure force buffer
 	var pressure_force_output_bytes := rd.buffer_get_data(pressure_force_buffer)

@@ -80,6 +80,6 @@ void main() {
         float grad = Wgrad(dst, param.smoothing_length);
         float shared_pressure = (self_pressure + other_pressure) / 2.0;
         
-        pressure_force.pressure_force[p_i] += -shared_pressure * dir * grad * param.mass / density.density[p_j];
+        pressure_force.pressure_force[p_i] += shared_pressure * dir * grad * param.mass / density.density[p_j];
     }
 }
