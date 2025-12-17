@@ -13,3 +13,8 @@ script = ExtResource("2_0xm2m")
 
 [node name="Particles" type="Node2D" parent="."]
 script = ExtResource("2_h2yge")
+
+[node name="InfoLabel" type="Label" parent="."]
+offset_right = 132.0
+offset_bottom = 46.0
+text = "Particle: "

@@ -8,6 +8,8 @@ var initial_particle_num = 0
 
 var particle_num = 0
 
+
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	for i in range(initial_particle_num):
@@ -42,11 +44,14 @@ func _update_physics(delta: float) -> void:
 	else:
 		push_error("Particles is null!")
 
-
+func _update_labels(delta: float) -> void:
+	$InfoLabel.text = "Particles: " + str(particle_num) + "\n" + \
+					  "Frame Time (ms): " + str(int(1000*delta)) + " ms\n"
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	delta = min(delta, Global.time_step)
-	_update_physics(delta)
+	var t = min(delta, Global.time_step)
+	_update_physics(t)
+	_update_labels(delta)
 
 func _calculate_density_gradient(_position: Vector2) -> Vector2:
 	const delta = 1e-6
