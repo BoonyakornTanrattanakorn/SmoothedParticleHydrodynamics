@@ -8,11 +8,13 @@ func _update_physics(delta: float) -> void:
 	var particle_density_array = $Density._calculate_from_position_array($ParticleContainer.particle_position_array)
 	# Calculate pressure force
 	var pressure_force_array = $PressureForce._calculate_array($ParticleContainer.particle_position_array, particle_density_array)
+	var external_force_array = $ExternalForce._calculate_external_force($ParticleContainer.particle_position_array)
+	
 	for p_i in range(pressure_force_array.size()):
-		$ParticleContainer.particle_velocity_array[p_i] += (pressure_force_array[p_i] / particle_density_array[p_i]) * delta
+		var force = pressure_force_array[p_i] + external_force_array[p_i] + $Settings.gravity * particle_density_array[p_i]
+		$ParticleContainer.particle_velocity_array[p_i] += (force / particle_density_array[p_i]) * delta
 	# Calculate particle position
 	for particle_index in range($ParticleContainer.particle_num):
-		$ParticleContainer.particle_velocity_array[particle_index] += $Settings.gravity * delta;
 		$ParticleContainer.particle_position_array[particle_index] += $ParticleContainer.particle_velocity_array[particle_index] * delta
 		$ParticleContainer.particle_velocity_array[particle_index] *= $Settings.damp
 	_bounding_box_collision()

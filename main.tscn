@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bun8qc0hbhmwp"]
+[gd_scene load_steps=10 format=3 uid="uid://bun8qc0hbhmwp"]
 
 [ext_resource type="Script" uid="uid://b43j177cwb3bc" path="res://main.gd" id="1_main"]
 [ext_resource type="Script" uid="uid://bj4uf7ya3a1tb" path="res://Rendering/particle_renderer.gd" id="2_h2yge"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://ckgg7gpaysrvn" path="res://Physics/pressure_force.gd" id="6_7mycd"]
 [ext_resource type="Script" uid="uid://bwrubjl4sn6cu" path="res://Physics/smoothing_kernel_function.gd" id="7_272bh"]
 [ext_resource type="Script" uid="uid://c7l524ilyya76" path="res://input_handler.gd" id="8_5vw27"]
+[ext_resource type="Script" uid="uid://4rmbh7rvb2wv" path="res://Physics/external_force.gd" id="9_4c57u"]
 [ext_resource type="Script" uid="uid://ct2gqqome2so4" path="res://Physics/particle_container.gd" id="9_kek77"]
 
 [node name="Main" type="Node2D"]
@@ -14,9 +15,11 @@ script = ExtResource("1_main")
 
 [node name="Settings" type="Node2D" parent="."]
 script = ExtResource("5_lquwl")
-gas_constant = 200.0
 rest_density = 1.0
-damp = 0.995
+particle_mass = 1.0
+damp = 0.99
+force_acceleration = 10000.0
+force_radius = 2.5
 metadata/_custom_type_script = "uid://ck65pmo6g3srv"
 
 [node name="ParticleRenderer" type="Node2D" parent="."]
@@ -41,8 +44,13 @@ metadata/_custom_type_script = "uid://bwrubjl4sn6cu"
 
 [node name="InputHandler" type="Node" parent="."]
 script = ExtResource("8_5vw27")
+click_mode = 2
 metadata/_custom_type_script = "uid://c7l524ilyya76"
 
 [node name="ParticleContainer" type="Node" parent="."]
 script = ExtResource("9_kek77")
 metadata/_custom_type_script = "uid://ct2gqqome2so4"
+
+[node name="ExternalForce" type="Node" parent="."]
+script = ExtResource("9_4c57u")
+metadata/_custom_type_script = "uid://4rmbh7rvb2wv"

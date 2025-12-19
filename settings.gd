@@ -1,18 +1,21 @@
 extends Node2D
 class_name Settings
 
-@export var gravity = Vector2(0, 9.81)
-@export var box_dimension = Vector2(20, 20)
-@export var particle_radius: float = 0.1
-@export var particle_color = Color(0.0, 0.0, 1.0, 1.0)
-@export var gas_constant: float = 100.0
-@export var rest_density: float = 1000.0
-@export var initial_particle_num: int = 1000
+@export var gravity := Vector2(0, 9.81)
+@export var box_dimension := Vector2(20, 20)
+@export var particle_radius := 0.1
+@export var particle_color := Color(0.0, 0.0, 1.0, 1.0)
+@export var gas_constant := 100.0
+@export var rest_density := 1000.0
+@export var initial_particle_num := 4000
 
-@export var smoothing_length: float = 2 * particle_radius
-@export var particle_mass: float = 100.0
-@export var damp: float = 0.999
+@export var smoothing_length := 2 * particle_radius
+@export var particle_mass := 100.0
+@export var damp := 0.999
 @export var time_step := 0.01 # delta will not be bigger than this
+
+@export var force_acceleration := 1000.0
+@export var force_radius := 5.0
 
 var _scale: float;
 var _offset: Vector2;
