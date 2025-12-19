@@ -3,8 +3,12 @@ class_name Density
 
 var settings: Settings
 var smoothing_kernel: SmoothingKernel
+var max_density: float = 0.0
+var min_density: float = 0.0
+var avg_density: float = 0.0
+
 var rd := RenderingServer.create_local_rendering_device()
-var density_compute_shader_file := load("res://Density/density_compute_shader.glsl")
+var density_compute_shader_file := load("res://Shader/density_compute_shader.glsl")
 var density_compute_shader_spirv: RDShaderSPIRV = density_compute_shader_file.get_spirv()
 var density_compute_shader := rd.shader_create_from_spirv(density_compute_shader_spirv)
 var density_compute_pipeline := rd.compute_pipeline_create(density_compute_shader)
@@ -26,6 +30,7 @@ func _calculate_from_position_array(particle_position_array: PackedVector2Array)
 		density = _calculate_gpu(particle_position_array)
 	else:
 		density = _calculate_cpu(particle_position_array)
+	_calculate_density_range(density)
 	return density
 
 func _calculate_cpu(particle_position_array: PackedVector2Array) -> PackedFloat32Array:
@@ -86,9 +91,25 @@ func _calculate_gpu(particle_position_array: PackedVector2Array) -> PackedFloat3
 
 	rd.submit()
 	# we can actually do other CPU tasks here while GPU is working
-	rd.sync ()
+	rd.sync()
 
 	# read back density buffer
 	var density_output_bytes := rd.buffer_get_data(density_buffer)
 	var density_output := density_output_bytes.to_float32_array()
 	return density_output
+
+# Calculate and update density statistics
+func _calculate_density_range(particle_density_array: PackedFloat32Array) -> void:
+	if particle_density_array.size() == 0:
+		return
+	var tmp_max = particle_density_array[0]
+	var tmp_min = particle_density_array[0]
+	var tmp_sum = 0
+	for d in particle_density_array:
+		tmp_max = max(tmp_max, d)
+		tmp_min = min(tmp_min, d)
+		tmp_sum += d
+	const alpha = 0.5
+	max_density = alpha * tmp_max + (1 - alpha) * max_density
+	min_density = alpha * tmp_min + (1 - alpha) * min_density
+	avg_density = alpha * tmp_sum / particle_density_array.size() + (1 - alpha) * avg_density

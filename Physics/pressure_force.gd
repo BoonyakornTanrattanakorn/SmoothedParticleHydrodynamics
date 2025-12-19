@@ -6,7 +6,7 @@ var smoothing_kernel: SmoothingKernel
 var rng = RandomNumberGenerator.new()
 
 var rd := RenderingServer.create_local_rendering_device()
-var pressure_force_compute_shader_file := load("res://PressureForce/pressure_force_compute_shader.glsl")
+var pressure_force_compute_shader_file := load("res://Shader/pressure_force_compute_shader.glsl")
 var pressure_force_compute_shader_spirv: RDShaderSPIRV = pressure_force_compute_shader_file.get_spirv()
 var pressure_force_compute_shader := rd.shader_create_from_spirv(pressure_force_compute_shader_spirv)
 var pressure_force_compute_pipeline := rd.compute_pipeline_create(pressure_force_compute_shader)
@@ -112,7 +112,7 @@ func _calculate_gpu(particle_position_array: PackedVector2Array,
 
 	rd.submit()
 	# we can actually do other CPU tasks here while GPU is working
-	rd.sync()
+	rd.sync ()
 
 	# read back pressure force buffer
 	var pressure_force_output_bytes := rd.buffer_get_data(pressure_force_buffer)

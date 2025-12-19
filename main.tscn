@@ -1,27 +1,25 @@
-[gd_scene load_steps=8 format=3 uid="uid://bun8qc0hbhmwp"]
+[gd_scene load_steps=9 format=3 uid="uid://bun8qc0hbhmwp"]
 
 [ext_resource type="Script" uid="uid://b43j177cwb3bc" path="res://main.gd" id="1_main"]
-[ext_resource type="Script" uid="uid://biu7k7fqr8fun" path="res://density_field.gd" id="2_0xm2m"]
-[ext_resource type="Script" uid="uid://bj4uf7ya3a1tb" path="res://particle.gd" id="2_h2yge"]
-[ext_resource type="Script" uid="uid://dik05lqosw8i7" path="res://Density/density.gd" id="4_1bvp3"]
+[ext_resource type="Script" uid="uid://bj4uf7ya3a1tb" path="res://Rendering/particle_renderer.gd" id="2_h2yge"]
+[ext_resource type="Script" uid="uid://dik05lqosw8i7" path="res://Physics/density.gd" id="4_1bvp3"]
 [ext_resource type="Script" uid="uid://ck65pmo6g3srv" path="res://settings.gd" id="5_lquwl"]
-[ext_resource type="Script" uid="uid://ckgg7gpaysrvn" path="res://PressureForce/pressureForce.gd" id="6_7mycd"]
-[ext_resource type="Script" uid="uid://bwrubjl4sn6cu" path="res://smoothing_kernel_function.gd" id="7_272bh"]
+[ext_resource type="Script" uid="uid://ckgg7gpaysrvn" path="res://Physics/pressure_force.gd" id="6_7mycd"]
+[ext_resource type="Script" uid="uid://bwrubjl4sn6cu" path="res://Physics/smoothing_kernel_function.gd" id="7_272bh"]
+[ext_resource type="Script" uid="uid://c7l524ilyya76" path="res://input_handler.gd" id="8_5vw27"]
+[ext_resource type="Script" uid="uid://ct2gqqome2so4" path="res://Physics/particle_container.gd" id="9_kek77"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
 
 [node name="Settings" type="Node2D" parent="."]
 script = ExtResource("5_lquwl")
-gas_constant = 1000.0
-damp = 0.99
+gas_constant = 200.0
+rest_density = 1.0
+damp = 0.995
 metadata/_custom_type_script = "uid://ck65pmo6g3srv"
 
-[node name="DensityGradientField" type="Node2D" parent="."]
-visible = false
-script = ExtResource("2_0xm2m")
-
-[node name="Particles" type="Node2D" parent="."]
+[node name="ParticleRenderer" type="Node2D" parent="."]
 script = ExtResource("2_h2yge")
 
 [node name="InfoLabel" type="Label" parent="."]
@@ -40,3 +38,11 @@ metadata/_custom_type_script = "uid://ckgg7gpaysrvn"
 [node name="SmoothingKernel" type="Node" parent="."]
 script = ExtResource("7_272bh")
 metadata/_custom_type_script = "uid://bwrubjl4sn6cu"
+
+[node name="InputHandler" type="Node" parent="."]
+script = ExtResource("8_5vw27")
+metadata/_custom_type_script = "uid://c7l524ilyya76"
+
+[node name="ParticleContainer" type="Node" parent="."]
+script = ExtResource("9_kek77")
+metadata/_custom_type_script = "uid://ct2gqqome2so4"

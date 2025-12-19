@@ -7,6 +7,7 @@ class_name Settings
 @export var particle_color = Color(0.0, 0.0, 1.0, 1.0)
 @export var gas_constant: float = 100.0
 @export var rest_density: float = 1000.0
+@export var initial_particle_num: int = 1000
 
 @export var smoothing_length: float = 2 * particle_radius
 @export var particle_mass: float = 100.0
@@ -25,4 +26,3 @@ func _ready() -> void:
 	
 func _process(delta: float) -> void:
 	_ready()
-	

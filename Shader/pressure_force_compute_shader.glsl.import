@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://dt2xosht5jkqh"
+path="res://.godot/imported/pressure_force_compute_shader.glsl-5e0a1ce7b2ab7e5c2e75e3b630c4315a.res"
+
+[deps]
+
+source_file="res://Shader/pressure_force_compute_shader.glsl"
+dest_files=["res://.godot/imported/pressure_force_compute_shader.glsl-5e0a1ce7b2ab7e5c2e75e3b630c4315a.res"]
+
+[params]
+
